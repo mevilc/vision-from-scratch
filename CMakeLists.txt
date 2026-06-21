@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 4.2)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
-project (CVFirstPrinciples)
+project (vision)
 
-add_executable(CVFirstPrinciples 
+add_executable(vision
     main.cpp
     enhancements.cpp
     enhancements.h
@@ -21,9 +21,9 @@ add_executable(CVFirstPrinciples
     translate.cpp
     translate.h)
 
-include_directories(CVFirstPrinciples "/opt/homebrew/Cellar/opencv/4.12.0_19/include/opencv4")
+include_directories(vision "/opt/homebrew/Cellar/opencv/4.12.0_19/include/opencv4")
 
 find_package(OpenCV REQUIRED)
-target_link_libraries(CVFirstPrinciples ${OpenCV_LIBS}) 
+target_link_libraries(vision ${OpenCV_LIBS}) 
 
-target_compile_options(CVFirstPrinciples PRIVATE -Wall -Wextra -Wpedantic)
+target_compile_options(vision PRIVATE -Wall -Wextra -Wpedantic)

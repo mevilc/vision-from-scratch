@@ -12,6 +12,7 @@
 #include <cmath>
 #include <iostream>
 #include <string>
+#include <filesystem>
 
 using namespace imgproc;
 
@@ -58,41 +59,43 @@ void blur(const Image& img)
 void getPyramid(const Image& img)
 {
 	std::vector<Image> pyramid = getGuassianPyramid(img);
-	
- 	for (size_t i = 0; i < pyramid.size(); i++)
+    std::cout << pyramid.size(); 
+
+	for (size_t i = 0; i < pyramid.size(); i++)
  		cv::imshow("level " + std::to_string(i + 1), imgToMat(pyramid[i]));
 
 }
 
-int main()
+int main(int argc, char** argv)
 {
-    
-    // img with guassian noise
-	//Image img = matToImg(cv::imread("/Users/mevilcrasta/Documents/CVFirstPrinciples/gaussian_noise.png"));
-    
-    Image img = matToImg(cv::imread("/Users/mevilcrasta/Documents/CVFirstPrinciples/boat-compressed_36.jpg"));
-    // Image img = matToImg(cv::imread("/Users/mevilcrasta/Documents/CVFirstPrinciples/boat-compressed.jpg", cv::IMREAD_GRAYSCALE ));
+	if (argc < 3)
+	{
+		std::cout << "Usage: " << 
+			"./vision --img <img_path>";
+		return 1;
+	}
 
-    // rotate(img);
-    // translate(img);
-    // scale(img);
-    // simTransform(img);
-    // blur(img);
-    getPyramid(img);
+    Image img = matToImg(cv::imread(argv[2]));
 
-		//Image darkImg = adjustBrightness(img, -100);
-	//Image brightImg = adjustBrightness(img, 100);
-	//Image invertedImg = invert(img);
-	//Image contrastLowImg = contrast(img, 0.5);
-	//Image contrastHighImg = contrast(img, 1.5);
-	//cv::Mat grayImg = toGrayscale(img);
-	//
-	//cv::imshow("darkened",   imgToMat(darkImg));
-	//cv::imshow("brightened", imgToMat(brightImg));
-	//cv::imshow("inverted", imgToMat(invertedImg));
-	//cv::imshow("contrast lowered", imgToMat(contrastLowImg));
-	//cv::imshow("contrast Higher",  imgToMat(contrastHighImg));
-    //cv::imshow("grayscale", grayImg);
+ 	// rotate(img);
+ 	// translate(img);
+ 	// scale(img);
+ 	// simTransform(img);
+ 	// blur(img);
+ 	// getPyramid(img);
+
+	Image darkImg = adjustBrightness(img, -100);
+	Image brightImg = adjustBrightness(img, 100);
+	Image invertedImg = invert(img);
+	Image contrastLowImg = contrast(img, 0.5);
+	Image contrastHighImg = contrast(img, 1.5);
+	// cv::Mat grayImg = toGrayscale(img);
+	cv::imshow("darkened",   imgToMat(darkImg));
+	cv::imshow("brightened", imgToMat(brightImg));
+	cv::imshow("inverted", imgToMat(invertedImg));
+	cv::imshow("contrast lowered", imgToMat(contrastLowImg));
+	cv::imshow("contrast Higher",  imgToMat(contrastHighImg));
+  	// cv::imshow("grayscale", grayImg);
 
 	// TODO: 
 	// - image pyramids (Laplacian), non-linear filters, template matching
@@ -100,10 +103,10 @@ int main()
 	// 	- simple feature detector
 	// - stereo vision
 	// - 3D reconstruction
-
+	
     cv::imshow("originalImg", imgToMat(img));
     cv::waitKey();
     cv::destroyAllWindows();
-
-    return 0;
+    
+	return 0;
 }

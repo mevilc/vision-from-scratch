@@ -20,13 +20,13 @@ imgproc::adjustBrightness(const Image& img, int beta)
 		{
             Pixel oldPixel = img.getPixel(y, x);
             
-            int r = (int)oldPixel.r + beta;
-            int g = (int)oldPixel.g + beta;
-            int b = (int)oldPixel.b + beta;
+            int r = static_cast<int>(oldPixel.r) + beta;
+            int g = static_cast<int>(oldPixel.g) + beta;
+            int b = static_cast<int>(oldPixel.b) + beta;
 
-            oldPixel.r = (uint8_t)(std::max(0, std::min(r, 255)));
-            oldPixel.g = (uint8_t)(std::max(0, std::min(g, 255)));
-            oldPixel.b = (uint8_t)(std::max(0, std::min(b, 255)));
+            oldPixel.r = static_cast<uint8_t>( (std::max(0, std::min(r, 255))) );
+            oldPixel.g = static_cast<uint8_t>( (std::max(0, std::min(g, 255))) );
+            oldPixel.b = static_cast<uint8_t>( (std::max(0, std::min(b, 255))) );
 
             newImg.setPixel(y, x, oldPixel);
 		}
@@ -48,14 +48,14 @@ imgproc::Image imgproc::invert(const Image& img)
 		{
             Pixel oldPixel = img.getPixel(y, x);
 			
-            int r = 255 - (int)oldPixel.r;
-            int g = 255 - (int)oldPixel.g;
-            int b = 255 - (int)oldPixel.b;
+            int r = 255 - static_cast<int>(oldPixel.r);
+            int g = 255 - static_cast<int>(oldPixel.g);
+            int b = 255 - static_cast<int>(oldPixel.b);
 
             Pixel newPixel;
-            newPixel.r = (uint8_t)(std::max(0, std::min(r, 255)));
-            newPixel.g = (uint8_t)(std::max(0, std::min(g, 255)));
-            newPixel.b = (uint8_t)(std::max(0, std::min(b, 255)));
+            newPixel.r = static_cast<uint8_t>( (std::max(0, std::min(r, 255))) );
+            newPixel.g = static_cast<uint8_t>( (std::max(0, std::min(g, 255))) );
+            newPixel.b = static_cast<uint8_t>( (std::max(0, std::min(b, 255))) );
 
             invertedImg.setPixel(y, x, newPixel);
 		}
@@ -80,14 +80,14 @@ imgproc::Image imgproc::contrast(const Image& img, float alpha)
 		{	
             Pixel oldPixel = img.getPixel(y, x);
 			
-            int r = (int)oldPixel.r * alpha;
-            int g = (int)oldPixel.g * alpha;
-            int b = (int)oldPixel.b * alpha;
+			int r = static_cast<int>(oldPixel.r) * alpha;
+            int g = static_cast<int>(oldPixel.g) * alpha;
+            int b = static_cast<int>(oldPixel.b) * alpha;
 
             Pixel newPixel;
-            newPixel.r = (uint8_t)(std::max(0, std::min(r, 255)));
-            newPixel.g = (uint8_t)(std::max(0, std::min(g, 255)));
-            newPixel.b = (uint8_t)(std::max(0, std::min(b, 255)));
+            newPixel.r = static_cast<uint8_t>( (std::max(0, std::min(r, 255))) );
+            newPixel.g = static_cast<uint8_t>( (std::max(0, std::min(g, 255))) );
+            newPixel.b = static_cast<uint8_t>( (std::max(0, std::min(b, 255))) );
 			contrastImg.setPixel(y, x, newPixel);
 		}
 	}
