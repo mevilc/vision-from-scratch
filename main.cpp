@@ -8,6 +8,8 @@
 #include <opencv2/core/mat.hpp>
 #include <opencv2/opencv.hpp>
 
+#include "argparse.hpp"
+
 #include <vector>
 #include <cmath>
 #include <iostream>
@@ -16,28 +18,28 @@
 
 using namespace imgproc;
 
-void rotate(const Image& img)
+void rotate(const Image& img, const double ang)
 {
-    Image rotatedImgFwd = Rotation::rotate(img, 45, Rotation::rotateMethod::FWD_MAP);
-	Image rotatedImgInv = Rotation::rotate(img, 45, Rotation::rotateMethod::INV_MAP);
+    Image rotatedImgFwd = Rotation::rotate(img, ang, Rotation::rotateMethod::FWD_MAP);
+	Image rotatedImgInv = Rotation::rotate(img, ang, Rotation::rotateMethod::INV_MAP);
     cv::imshow("rotatedImgFwd", imgToMat(rotatedImgFwd));
 	cv::imshow("rotatedImgInv", imgToMat(rotatedImgInv));
 }
 
 
-void translate(const Image& img)
+void translate(const Image& img, const std::vector<int>& t)
 {
-    Image translatedImg = translate(img, 50, 50);
+    Image translatedImg = translate(img, t[0] /* tx */, t[1] /* ty */);
 	cv::imshow("translatedImg", imgToMat(translatedImg));
 }
 
-void scale(const Image& img)
+void scale(const Image& img, const uint8_t scaleFac)
 {
-    Image scaledImg = Scale::scale(img, Scale::InterpolationMethod::Bilinear, 2);
-	Image scaledImg2 = Scale::scale(img, Scale::InterpolationMethod::NearestNeighbour, 3);
+    Image scaledImg = Scale::scale(img, Scale::InterpolationMethod::Bilinear, scaleFac);
+	Image scaledImg2 = Scale::scale(img, Scale::InterpolationMethod::NearestNeighbour, scaleFac);
 
-    cv::imshow("scaled - bilinear - 2", imgToMat(scaledImg));
-    cv::imshow("scaled -- NN - 3", imgToMat(scaledImg2));
+    cv::imshow("scaled - bilinear", imgToMat(scaledImg));
+    cv::imshow("scaled -- NN", imgToMat(scaledImg2));
 }
 
 void simTransform(const Image& img)
@@ -46,14 +48,10 @@ void simTransform(const Image& img)
 	cv::imshow("similarityTransform", imgToMat(similarTransformImg));
 }
 
-void blur(const Image& img)
+void blur(const Image& img, const int kernelSize)
 {
-	auto blurredImg3 = applyGuassian(img, 3, 3.f);
-	auto blurredImg5 = applyGuassian(img, 5, 5.f);
-	auto blurredImg7 = applyGuassian(img, 7, 10.f);
-    cv::imshow("blurred3", imgToMat(blurredImg3));
-	cv::imshow("blurred5", imgToMat(blurredImg5));
-	cv::imshow("blurred7", imgToMat(blurredImg7));
+	auto blurredImg = applyGuassian(img, kernelSize, 3.f);
+    cv::imshow("blurred", imgToMat(blurredImg));
 }
 
 void getPyramid(const Image& img)
@@ -66,35 +64,74 @@ void getPyramid(const Image& img)
 
 }
 
+void setupArgs(argparse::ArgumentParser& prog)
+{
+	// Required arg.
+	prog.add_argument("img").help("image path");
+
+	// Optional args (atleast one is required).
+	prog.add_argument("-r", "--rotate")
+		.help("rotate image by X degrees")
+		.scan<'g', double>()
+		.default_value(15);
+	
+	prog.add_argument("-t", "--translate")
+		.help("translate image by X pixels to the right and Y pixels down")
+		.nargs(2)
+		.scan<'i', int>();
+
+	prog.add_argument("--scale")
+		.help("scale image by X value")
+		.nargs(1)
+		.scan<'i', int>();
+	
+	prog.add_argument("-si", "--sim")
+		.help("apply similatry transform to image");
+	
+	prog.add_argument("--blur")
+		.help("blur image by NxN Gaussian kernel")
+		.scan<'i', int>();
+
+}
+
 int main(int argc, char** argv)
 {
-	if (argc < 3)
+	argparse::ArgumentParser program{};
+	setupArgs(program);
+
+	try { program.parse_args(argc, argv); }
+	catch(const std::exception& e)
 	{
-		std::cout << "Usage: " << 
-			"./vision --img <img_path>";
+		std::cerr << e.what() << '\n';
+		std::cerr << program;
 		return 1;
 	}
+	
+    Image img = matToImg(cv::imread(program.get<std::string>("img")));
 
-    Image img = matToImg(cv::imread(argv[2]));
-
- 	// rotate(img);
- 	// translate(img);
- 	// scale(img);
- 	// simTransform(img);
- 	// blur(img);
+	if (program.is_used("--rotate"))
+ 		rotate(img, program.get<double>("--rotate"));
+	if (program.is_used("--translate"))
+		translate(img, program.get<std::vector<int>>("--translate"));
+ 	if (program.is_used("--scale"))
+		scale(img, program.get<int>("--scale"));
+	if (program.is_used("--sim"))
+		simTransform(img);
+	if (program.is_used("--blur"))
+ 		blur(img, program.get<int>("--blur"));
  	// getPyramid(img);
 
-	Image darkImg = adjustBrightness(img, -100);
-	Image brightImg = adjustBrightness(img, 100);
-	Image invertedImg = invert(img);
-	Image contrastLowImg = contrast(img, 0.5);
-	Image contrastHighImg = contrast(img, 1.5);
+	//Image darkImg = adjustBrightness(img, -100);
+	//Image brightImg = adjustBrightness(img, 100);
+	//Image invertedImg = invert(img);
+	//Image contrastLowImg = contrast(img, 0.5);
+	//Image contrastHighImg = contrast(img, 1.5);
 	// cv::Mat grayImg = toGrayscale(img);
-	cv::imshow("darkened",   imgToMat(darkImg));
-	cv::imshow("brightened", imgToMat(brightImg));
-	cv::imshow("inverted", imgToMat(invertedImg));
-	cv::imshow("contrast lowered", imgToMat(contrastLowImg));
-	cv::imshow("contrast Higher",  imgToMat(contrastHighImg));
+	// cv::imshow("darkened",   imgToMat(darkImg));
+	// cv::imshow("brightened", imgToMat(brightImg));
+	// cv::imshow("inverted", imgToMat(invertedImg));
+	// cv::imshow("contrast lowered", imgToMat(contrastLowImg));
+	// cv::imshow("contrast Higher",  imgToMat(contrastHighImg));
   	// cv::imshow("grayscale", grayImg);
 
 	// TODO: 
